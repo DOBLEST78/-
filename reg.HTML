@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация - Педагогический отряд "Юность"</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        light: {
+                            primary: '#3B82F6', // голубой для светлой темы
+                            accent: '#1D4ED8',
+                        },
+                        dark: {
+                            primary: '#1E3A8A', // синий для темной темы
+                            accent: '#1E40AF',
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .theme-transition {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Стили для анимированного переключателя темы */
+        .theme-toggle {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .theme-toggle-track {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: background-color 0.3s ease;
+        }
+        
+        .theme-toggle-thumb {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        
+        .dark .theme-toggle-thumb {
+            transform: translateX(30px);
+        }
+        
+        /* Стили для затемнения фонового изображения */
+        .background-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        /* Разная прозрачность для светлой и темной темы */
+        .light .background-overlay {
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        
+        .dark .background-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Фоновая картинка */
+        .background-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            object-fit: cover;
+        }
+        
+        /* Если изображение не загрузится, будет резервный фон */
+        .bg-fallback {
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+        }
+        
+        .dark .bg-fallback {
+            background: linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%);
+        }
+        
+        /* Стили для шагов регистрации */
+        .registration-step {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+        }
+        
+        .step-line {
+            height: 2px;
+            flex-grow: 1;
+        }
+        
+        /* Стили для инпутов формы */
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 2px solid #d1d5db;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        
+        .dark .form-input {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: #4b5563;
+            color: white;
+        }
+        
+        .dark .form-input:focus {
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+        
+        /* Стиль для текстовой области */
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body class="light bg-white text-gray-800 theme-transition dark:bg-gray-900 dark:text-gray-200">
+    <!-- Фоновое изображение -->
+    <div class="bg-fallback fixed inset-0 z-[-2]" id="fallbackBackground"></div>
+    <img src="images/you.jpg" alt="Фон" class="background-image" id="backgroundImage" onerror="handleImageError()">
+    <div class="background-overlay"></div>
+    
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-sm shadow-sm dark:bg-gray-900/90 theme-transition">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <span class="font-semibold text-lg">ПЕДАГОГИЧЕСКИЙ ОТРЯД "ЮНОСТЬ"</span>
+                </div>
+                
+                <div class="flex items-center space-x-6">
+                    <!-- Переключатель темы -->
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-sun text-yellow-500 text-sm"></i>
+                        <div class="theme-toggle" id="themeToggle">
+                            <div class="theme-toggle-track bg-blue-300 dark:bg-blue-900"></div>
+                            <div class="theme-toggle-thumb bg-blue-600 dark:bg-blue-700 shadow-md"></div>
+                        </div>
+                        <i class="fas fa-moon text-blue-700 text-sm"></i>
+                    </div>
+                    
+                    <nav class="hidden md:flex space-x-6">
+                        <a href="index.html" class="font-medium hover:text-blue-600 dark:hover:text-blue-400 theme-transition">ГЛАВНАЯ</a>
+                        <a href="#" class="font-medium hover:text-blue-600 dark:hover:text-blue-400 theme-transition">ИНФОРМАЦИЯ</a>
+                        <a href="#" class="font-medium hover:text-blue-600 dark:hover:text-blue-400 theme-transition">БЛОГ</a>
+                        <a href="reg.HTML" class="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 theme-transition border-b-2 border-blue-600 dark:border-blue-400 pb-1">РЕГИСТРАЦИЯ</a>
+                    </nav>
+                    
+                    <button class="md:hidden text-blue-600 dark:text-blue-400" id="mobileMenuButton">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <main class="min-h-screen py-8 md:py-12">
+        <div class="container mx-auto px-4">
+            <!-- Заголовок страницы -->
+            <div class="text-center mb-10 md:mb-16">
+                <h1 class="text-3xl md:text-4xl font-bold text-white mb-4 drop-shadow-md">
+                    РЕГИСТРАЦИЯ
+                </h1>
+                <p class="text-lg md:text-xl text-blue-100 drop-shadow-md">
+                    Присоединяйтесь к нашей команде!
+                </p>
+            </div>
+            
+            <!-- Шаги регистрации -->
+            <div class="flex items-center justify-center mb-12 md:mb-16">
+                <div class="flex flex-col md:flex-row items-center">
+                    <!-- Шаг 1 -->
+                    <div class="flex flex-col items-center">
+                        <div class="registration-step bg-blue-600 text-white mb-2">
+                            1
+                        </div>
+                        <div class="text-center">
+                            <p class="font-bold text-white text-lg">АНКЕТА</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Линия между шагами -->
+                    <div class="step-line bg-blue-400 mx-4 my-4 md:my-0 w-16 md:w-24"></div>
+                    
+                    <!-- Шаг 2 -->
+                    <div class="flex flex-col items-center">
+                        <div class="registration-step bg-blue-400 text-white mb-2">
+                            2
+                        </div>
+                        <div class="text-center">
+                            <p class="font-bold text-white text-lg">СОБЕСЕДОВАНИЕ</p>
+                            <p class="text-blue-200 text-sm">С РУКОВОДИТЕЛЕМ</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Линия между шагами -->
+                    <div class="step-line bg-blue-400 mx-4 my-4 md:my-0 w-16 md:w-24"></div>
+                    
+                    <!-- Шаг 3 -->
+                    <div class="flex flex-col items-center">
+                        <div class="registration-step bg-blue-400 text-white mb-2">
+                            3
+                        </div>
+                        <div class="text-center">
+                            <p class="font-bold text-white text-lg">ДОБРО</p>
+                            <p class="font-bold text-white text-lg">ПОЖАЛОВАТЬ</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Форма регистрации -->
+            <div class="max-w-3xl mx-auto">
+                <div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-xl">
+                    <div class="text-center mb-8">
+                        <h2 class="text-2xl md:text-3xl font-bold text-blue-800 dark:text-blue-300">
+                            АНКЕТА
+                        </h2>
+                    </div>
+                    
+                    <form id="registrationForm" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Фамилия -->
+                            <div class="space-y-2">
+                                <label class="block font-medium text-blue-800 dark:text-blue-300">
+                                    ФАМИЛИЯ *
+                                </label>
+                                <input 
+                                    type="text" 
+                                    class="form-input"
+                                    placeholder="Введите вашу фамилию"
+                                    required
+                                >
+                            </div>
+                            
+                            <!-- Имя -->
+                            <div class="space-y-2">
+                                <label class="block font-medium text-blue-800 dark:text-blue-300">
+                                    ИМЯ *
+                                </label>
+                                <input 
+                                    type="text" 
+                                    class="form-input"
+                                    placeholder="Введите ваше имя"
+                                    required
+                                >
+                            </div>
+                            
+                            <!-- Отчество -->
+                            <div class="space-y-2">
+                                <label class="block font-medium text-blue-800 dark:text-blue-300">
+                                    ОТЧЕСТВО
+                                </label>
+                                <input 
+                                    type="text" 
+                                    class="form-input"
+                                    placeholder="Введите ваше отчество"
+                                >
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Дата рождения -->
+                            <div class="space-y-2">
+                                <label class="block font-medium text-blue-800 dark:text-blue-300">
+                                    ДАТА РОЖДЕНИЯ *
+                                </label>
+                                <input 
+                                    type="date" 
+                                    class="form-input"
+                                    required
+                                >
+                            </div>
+                            
+                            <!-- Номер телефона -->
+                            <div class="space-y-2">
+                                <label class="block font-medium text-blue-800 dark:text-blue-300">
+                                    НОМЕР ТЕЛЕФОНА *
+                                </label>
+                                <input 
+                                    type="tel" 
+                                    class="form-input"
+                                    placeholder="+7 (___) ___-__-__"
+                                    required
+                                >
+                            </div>
+                        </div>
+                        
+                        <!-- О себе -->
+                        <div class="space-y-2">
+                            <label class="block font-medium text-blue-800 dark:text-blue-300">
+                                О СЕБЕ *
+                            </label>
+                            <textarea 
+                                class="form-input form-textarea"
+                                placeholder="Расскажите о себе, своих интересах, почему хотите присоединиться к нашему отряду..."
+                                required
+                            ></textarea>
+                        </div>
+                        
+                        <!-- Опыт работы с детьми -->
+                        <div class="space-y-2">
+                            <label class="block font-medium text-blue-800 dark:text-blue-300">
+                                ОПЫТ РАБОТЫ С ДЕТЬМИ *
+                            </label>
+                            <textarea 
+                                class="form-input form-textarea"
+                                placeholder="Опишите ваш опыт работы с детьми (лагеря, кружки, репетиторство, волонтерство и т.д.)..."
+                                required
+                            ></textarea>
+                        </div>
+                        
+                        <!-- Дополнительные поля -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Образование -->
+                            <div class="space-y-2">
+                                <label class="block font-medium text-blue-800 dark:text-blue-300">
+                                    ОБРАЗОВАНИЕ
+                                </label>
+                                <input 
+                                    type="text" 
+                                    class="form-input"
+                                    placeholder="Ваше образование"
+                                >
+                            </div>
+                            
+                            <!-- Город -->
+                            <div class="space-y-2">
+                                <label class="block font-medium text-blue-800 dark:text-blue-300">
+                                    ГОРОД *
+                                </label>
+                                <input 
+                                    type="text" 
+                                    class="form-input"
+                                    placeholder="В каком городе вы находитесь"
+                                    required
+                                >
+                            </div>
+                        </div>
+                        
+                        <!-- Чекбокс согласия -->
+                        <div class="flex items-start space-x-3 pt-4">
+                            <input 
+                                type="checkbox" 
+                                id="agreement"
+                                class="mt-1 h-5 w-5 text-blue-600 rounded"
+                                required
+                            >
+                            <label for="agreement" class="text-sm text-gray-700 dark:text-gray-300">
+                                Я даю согласие на обработку моих персональных данных в соответствии с политикой конфиденциальности и соглашаюсь с условиями участия в педагогическом отряде "Юность".
+                            </label>
+                        </div>
+                        
+                        <!-- Кнопка отправки -->
+                        <div class="pt-6 text-center">
+                            <button 
+                                type="submit"
+                                class="inline-block bg-blue-600 hover:bg-blue-700 dark:bg-blue-800 dark:hover:bg-blue-900 text-white font-bold py-3 px-10 rounded-lg text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                            >
+                                ОТПРАВИТЬ
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Информация о процессе -->
+                <div class="mt-8 text-center">
+                    <p class="text-blue-100 dark:text-blue-200">
+                        После отправки анкеты с вами свяжется наш руководитель в течение 3-5 рабочих дней для назначения собеседования.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-t border-blue-100 dark:border-blue-900 py-8 theme-transition mt-12">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-lg">ПЕДАГОГИЧЕСКИЙ ОТРЯД "ЮНОСТЬ"</span>
+                    </div>
+                    <p class="mt-2 text-gray-600 dark:text-gray-400">Воплощаем в реальность детские мечты</p>
+                </div>
+                
+                <div class="flex space-x-6">
+                    <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                        <i class="fab fa-vk text-xl"></i>
+                    </a>
+                    <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                        <i class="fab fa-telegram text-xl"></i>
+                    </a>
+                    <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                        <i class="fab fa-instagram text-xl"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="mt-8 pt-6 border-t border-blue-100 dark:border-blue-900 text-center text-gray-600 dark:text-gray-400 text-sm">
+                <p>© 2023 Педагогический отряд "Юность". Все права защищены.</p>
+                <p class="mt-2">Сайт создан с заботой о детях</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Функция для обработки ошибки загрузки изображения
+        function handleImageError() {
+            console.log('Изображение не загружено. Используется резервный фон.');
+            // Показываем резервный фон, если изображение не загрузилось
+            document.getElementById('fallbackBackground').classList.remove('hidden');
+            document.getElementById('backgroundImage').classList.add('hidden');
+        }
+        
+        // Проверяем загрузку изображения
+        document.addEventListener('DOMContentLoaded', function() {
+            const bgImage = document.getElementById('backgroundImage');
+            const fallbackBg = document.getElementById('fallbackBackground');
+            
+            // Проверяем, загрузилось ли изображение
+            if (bgImage.complete && bgImage.naturalHeight !== 0) {
+                // Изображение загружено успешно
+                fallbackBg.classList.add('hidden');
+                bgImage.classList.remove('hidden');
+            } else {
+                // Изображение не загружено
+                handleImageError();
+            }
+        });
+        
+        // Переключение темы
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+        
+        // Добавляем класс light для светлой темы
+        if (!localStorage.getItem('theme')) {
+            htmlElement.classList.add('light');
+        }
+        
+        // Проверяем сохраненную тему или предпочтения системы
+        if (localStorage.getItem('theme') === 'dark') {
+            htmlElement.classList.remove('light');
+            htmlElement.classList.add('dark');
+        } else if (localStorage.getItem('theme') === 'light') {
+            htmlElement.classList.remove('dark');
+            htmlElement.classList.add('light');
+        } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            htmlElement.classList.remove('light');
+            htmlElement.classList.add('dark');
+        } else {
+            htmlElement.classList.remove('dark');
+            htmlElement.classList.add('light');
+        }
+        
+        // Обработчик переключения темы
+        themeToggle.addEventListener('click', () => {
+            if (htmlElement.classList.contains('dark')) {
+                htmlElement.classList.remove('dark');
+                htmlElement.classList.add('light');
+                localStorage.setItem('theme', 'light');
+            } else {
+                htmlElement.classList.remove('light');
+                htmlElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+        
+        // Обработчик отправки формы
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Здесь можно добавить валидацию формы и отправку данных
+            
+            // Простая имитация отправки
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            
+            submitBtn.textContent = 'Отправка...';
+            submitBtn.disabled = true;
+            
+            // Имитация задержки отправки
+            setTimeout(() => {
+                alert('Ваша анкета успешно отправлена! Мы свяжемся с вами в ближайшее время.');
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+                this.reset();
+            }, 1500);
+        });
+        
+        // Маска для номера телефона
+        const phoneInput = document.querySelector('input[type="tel"]');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function(e) {
+                let value = this.value.replace(/\D/g, '');
+                
+                if (value.length > 0) {
+                    if (value.length <= 1) {
+                        value = '+7 (' + value;
+                    } else if (value.length <= 4) {
+                        value = '+7 (' + value.substring(1, 4);
+                    } else if (value.length <= 7) {
+                        value = '+7 (' + value.substring(1, 4) + ') ' + value.substring(4, 7);
+                    } else if (value.length <= 9) {
+                        value = '+7 (' + value.substring(1, 4) + ') ' + value.substring(4, 7) + '-' + value.substring(7, 9);
+                    } else {
+                        value = '+7 (' + value.substring(1, 4) + ') ' + value.substring(4, 7) + '-' + value.substring(7, 9) + '-' + value.substring(9, 11);
+                    }
+                }
+                
+                this.value = value;
+            });
+        }
+    </script>
+</body>
+</html>

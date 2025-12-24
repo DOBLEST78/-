@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Педагогический отряд "Юность"</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        light: {
+                            primary: '#3B82F6', // голубой для светлой темы
+                            accent: '#1D4ED8',
+                        },
+                        dark: {
+                            primary: '#1E3A8A', // синий для темной темы
+                            accent: '#1E40AF',
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .theme-transition {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Стили для анимированного переключателя темы */
+        .theme-toggle {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .theme-toggle-track {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: background-color 0.3s ease;
+        }
+        
+        .theme-toggle-thumb {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        
+        .dark .theme-toggle-thumb {
+            transform: translateX(30px);
+        }
+        
+        /* Анимация появления элементов */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        .delay-5 { animation-delay: 0.5s; }
+        
+        /* Стили для затемнения фонового изображения */
+        .background-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        /* Разная прозрачность для светлой и темной темы */
+        .light .background-overlay {
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        
+        .dark .background-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Фоновая картинка */
+        .background-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            object-fit: cover;
+        }
+        
+        /* Если изображение не загрузится, будет резервный фон */
+        .bg-fallback {
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+        }
+        
+        .dark .bg-fallback {
+            background: linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%);
+        }
+        
+        /* Стиль для мобильного меню */
+        .mobile-menu {
+            display: none;
+        }
+        
+        .mobile-menu.active {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="light bg-white text-gray-800 theme-transition dark:bg-gray-900 dark:text-gray-200">
+    <!-- Фоновое изображение -->
+    <div class="bg-fallback fixed inset-0 z-[-2]" id="fallbackBackground"></div>
+    <img src="images/you.jpg" alt="Фон" class="background-image" id="backgroundImage" onerror="handleImageError()">
+    <div class="background-overlay"></div>
+    
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-sm shadow-sm dark:bg-gray-900/90 theme-transition">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <span class="font-semibold text-lg">ПЕДАГОГИЧЕСКИЙ ОТРЯД "ЮНОСТЬ"</span>
+                </div>
+                
+                <div class="flex items-center space-x-6">
+                    <!-- Переключатель темы -->
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-sun text-yellow-500 text-sm"></i>
+                        <div class="theme-toggle" id="themeToggle">
+                            <div class="theme-toggle-track bg-blue-300 dark:bg-blue-900"></div>
+                            <div class="theme-toggle-thumb bg-blue-600 dark:bg-blue-700 shadow-md"></div>
+                        </div>
+                        <i class="fas fa-moon text-blue-700 text-sm"></i>
+                    </div>
+                    
+                    <nav class="hidden md:flex space-x-6">
+                        <a href="#" class="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 theme-transition border-b-2 border-blue-600 dark:border-blue-400 pb-1">ГЛАВНАЯ</a>
+                        <a href="#" class="font-medium hover:text-blue-600 dark:hover:text-blue-400 theme-transition">ИНФОРМАЦИЯ</a>
+                        <a href="#" class="font-medium hover:text-blue-600 dark:hover:text-blue-400 theme-transition">БЛОГ</a>
+                        <a href="reg.HTML" class="font-medium hover:text-blue-600 dark:hover:text-blue-400 theme-transition">РЕГИСТРАЦИЯ</a>
+                    </nav>
+                    
+                    <button class="md:hidden text-blue-600 dark:text-blue-400" id="mobileMenuButton">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Мобильное меню -->
+    <div class="mobile-menu fixed inset-0 z-40 bg-white dark:bg-gray-900 flex-col justify-center items-center" id="mobileMenu">
+        <button class="absolute top-4 right-4 text-blue-600 dark:text-blue-400 text-2xl" id="closeMobileMenu">
+            <i class="fas fa-times"></i>
+        </button>
+        <nav class="flex flex-col space-y-8 text-center">
+            <a href="#" class="text-2xl font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 theme-transition">ГЛАВНАЯ</a>
+            <a href="#" class="text-2xl font-medium hover:text-blue-600 dark:hover:text-blue-400 theme-transition">ИНФОРМАЦИЯ</a>
+            <a href="#" class="text-2xl font-medium hover:text-blue-600 dark:hover:text-blue-400 theme-transition">БЛОГ</a>
+            <a href="#" class="text-2xl font-medium hover:text-blue-600 dark:hover:text-blue-400 theme-transition">РЕГИСТРАЦИЯ</a>
+        </nav>
+    </div>
+    
+    <main class="min-h-screen">
+        <section class="py-16 md:py-24">
+            <div class="container mx-auto px-4">
+                <div class="max-w-4xl mx-auto text-center fade-in">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white drop-shadow-md">
+                        ПЕДАГОГИЧЕСКИЙ ОТРЯД
+                        <span class="block text-blue-200 dark:text-blue-300 mt-2">"ЮНОСТЬ"</span>
+                    </h1>
+                    
+                    <p class="text-xl md:text-2xl text-blue-100 mb-10 drop-shadow-md fade-in delay-1">
+                        Воплощаем в реальность детские мечты
+                    </p>
+                    
+                    <div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-2xl p-8 md:p-10 shadow-xl max-w-3xl mx-auto fade-in delay-2">
+                        <h2 class="text-2xl md:text-3xl font-bold mb-6 text-blue-800 dark:text-blue-300">
+                            Создаем незабываемые моменты и помогаем детям расти в атмосфере уюта, творчества и взаимной поддержки
+                        </h2>
+                        
+                        <div class="flex flex-col md:flex-row justify-center items-center mt-10 space-y-6 md:space-y-0 md:space-x-8">
+                            <div class="flex items-center space-x-3 fade-in delay-3">
+                                <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                                    <i class="fas fa-heart text-blue-600 dark:text-blue-400 text-xl"></i>
+                                </div>
+                                <span class="text-lg font-medium text-blue-800 dark:text-blue-300">Забота о детях</span>
+                            </div>
+                            
+                            <div class="flex items-center space-x-3 fade-in delay-4">
+                                <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                                    <i class="fas fa-palette text-blue-600 dark:text-blue-400 text-xl"></i>
+                                </div>
+                                <span class="text-lg font-medium text-blue-800 dark:text-blue-300">Творчество</span>
+                            </div>
+                            
+                            <div class="flex items-center space-x-3 fade-in delay-5">
+                                <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                                    <i class="fas fa-hands-helping text-blue-600 dark:text-blue-400 text-xl"></i>
+                                </div>
+                                <span class="text-lg font-medium text-blue-800 dark:text-blue-300">Взаимопомощь</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-12 fade-in delay-3">
+                        <a href="#" class="inline-block bg-blue-600 hover:bg-blue-700 dark:bg-blue-800 dark:hover:bg-blue-900 text-white font-bold py-4 px-10 rounded-full text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                            Узнать больше
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Информационный блок - БЕЗ белой панели -->
+        <section class="py-16">
+            <div class="container mx-auto px-4">
+                <div class="max-w-4xl mx-auto text-center">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-12 text-white drop-shadow-md">
+                        ИНФОРМАЦИЯ
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-6 fade-in delay-1">
+                            <div class="bg-white/20 dark:bg-gray-900/30 backdrop-blur-sm rounded-xl p-6 border border-white/30 dark:border-gray-700/50 shadow-lg">
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-calendar-alt text-blue-600 dark:text-blue-400 text-lg"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <h3 class="font-bold text-lg text-white dark:text-blue-300 mb-2">Наши мероприятия</h3>
+                                        <p class="text-blue-100 dark:text-blue-200">Проводим летние лагеря, творческие мастер-классы и образовательные программы для детей всех возрастов.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white/20 dark:bg-gray-900/30 backdrop-blur-sm rounded-xl p-6 border border-white/30 dark:border-gray-700/50 shadow-lg fade-in delay-2">
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-users text-blue-600 dark:text-blue-400 text-lg"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <h3 class="font-bold text-lg text-white dark:text-blue-300 mb-2">Наша команда</h3>
+                                        <p class="text-blue-100 dark:text-blue-200">Опытные педагоги, психологи и вожатые, прошедшие специальную подготовку для работы с детьми.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6 fade-in delay-3">
+                            <div class="bg-white/20 dark:bg-gray-900/30 backdrop-blur-sm rounded-xl p-6 border border-white/30 dark:border-gray-700/50 shadow-lg">
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-star text-blue-600 dark:text-blue-400 text-lg"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <h3 class="font-bold text-lg text-white dark:text-blue-300 mb-2">Наши цели</h3>
+                                        <p class="text-blue-100 dark:text-blue-200">Создание безопасной, развивающей среды, где каждый ребенок может раскрыть свой потенциал.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white/20 dark:bg-gray-900/30 backdrop-blur-sm rounded-xl p-6 border border-white/30 dark:border-gray-700/50 shadow-lg fade-in delay-4">
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-handshake text-blue-600 dark:text-blue-400 text-lg"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <h3 class="font-bold text-lg text-white dark:text-blue-300 mb-2">Присоединиться</h3>
+                                        <p class="text-blue-100 dark:text-blue-200">Мы всегда рады новым волонтерам и педагогам. Присоединяйтесь к нашей команде!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-12 fade-in delay-5">
+                        <a href="#" class="inline-block bg-blue-600 hover:bg-blue-700 dark:bg-blue-800 dark:hover:bg-blue-900 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                            Перейти к регистрации
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-t border-blue-100 dark:border-blue-900 py-8 theme-transition">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-lg">ПЕДАГОГИЧЕСКИЙ ОТРЯД "ЮНОСТЬ"</span>
+                    </div>
+                    <p class="mt-2 text-gray-600 dark:text-gray-400">Воплощаем в реальность детские мечты</p>
+                </div>
+                
+                <div class="flex space-x-6">
+                    <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                        <i class="fab fa-vk text-xl"></i>
+                    </a>
+                    <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                        <i class="fab fa-telegram text-xl"></i>
+                    </a>
+                    <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                        <i class="fab fa-instagram text-xl"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="mt-8 pt-6 border-t border-blue-100 dark:border-blue-900 text-center text-gray-600 dark:text-gray-400 text-sm">
+                <p>© 2023 Педагогический отряд "Юность". Все права защищены.</p>
+                <p class="mt-2">Сайт создан с заботой о детях</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Функция для обработки ошибки загрузки изображения
+        function handleImageError() {
+            console.log('Изображение не загружено. Используется резервный фон.');
+            // Показываем резервный фон, если изображение не загрузилось
+            document.getElementById('fallbackBackground').classList.remove('hidden');
+            document.getElementById('backgroundImage').classList.add('hidden');
+        }
+        
+        // Проверяем загрузку изображения
+        document.addEventListener('DOMContentLoaded', function() {
+            const bgImage = document.getElementById('backgroundImage');
+            const fallbackBg = document.getElementById('fallbackBackground');
+            
+            // Проверяем, загрузилось ли изображение
+            if (bgImage.complete && bgImage.naturalHeight !== 0) {
+                // Изображение загружено успешно
+                fallbackBg.classList.add('hidden');
+                bgImage.classList.remove('hidden');
+            } else {
+                // Изображение не загружено
+                handleImageError();
+            }
+        });
+        
+        // Переключение темы
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+        
+        // Добавляем класс light для светлой темы
+        if (!localStorage.getItem('theme')) {
+            htmlElement.classList.add('light');
+        }
+        
+        // Проверяем сохраненную тему или предпочтения системы
+        if (localStorage.getItem('theme') === 'dark') {
+            htmlElement.classList.remove('light');
+            htmlElement.classList.add('dark');
+        } else if (localStorage.getItem('theme') === 'light') {
+            htmlElement.classList.remove('dark');
+            htmlElement.classList.add('light');
+        } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            htmlElement.classList.remove('light');
+            htmlElement.classList.add('dark');
+        } else {
+            htmlElement.classList.remove('dark');
+            htmlElement.classList.add('light');
+        }
+        
+        // Обработчик переключения темы
+        themeToggle.addEventListener('click', () => {
+            if (htmlElement.classList.contains('dark')) {
+                htmlElement.classList.remove('dark');
+                htmlElement.classList.add('light');
+                localStorage.setItem('theme', 'light');
+            } else {
+                htmlElement.classList.remove('light');
+                htmlElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+        
+        // Анимация появления элементов при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach(el => {
+                el.style.opacity = '0';
+            });
+            
+            setTimeout(() => {
+                elements.forEach(el => {
+                    el.style.opacity = '1';
+                });
+            }, 100);
+        });
+        
+        // Мобильное меню
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const closeMobileMenu = document.getElementById('closeMobileMenu');
+        
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.add('active');
+        });
+        
+        closeMobileMenu.addEventListener('click', () => {
+            mobileMenu.classList.remove('active');
+        });
+        
+        // Закрытие мобильного меню при клике на ссылку
+        const mobileMenuLinks = mobileMenu.querySelectorAll('a');
+        mobileMenuLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+            });
+        });
+        
+        // Закрытие мобильного меню при клике вне меню
+        document.addEventListener('click', (event) => {
+            if (mobileMenu.classList.contains('active') && 
+                !mobileMenu.contains(event.target) && 
+                event.target !== mobileMenuButton) {
+                mobileMenu.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
